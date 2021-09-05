@@ -75,6 +75,10 @@ int main(){
         0.98, 0.36
     };
 
+    unsigned int triangleIndexBuffer[]{
+        0, 1, 2, 3
+    };
+
     std::ifstream vertShaderIFS("../shaders/sample.vert");
     std::ifstream fragShaderIFS("../shaders/sample.frag");
 
@@ -135,7 +139,12 @@ int main(){
     GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangleBuffer), reinterpret_cast<const void*>(triangleBuffer), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(triangleBuffer), triangleBuffer, GL_STATIC_READ);
+
+    GLuint ibo;
+    glGenBuffers(1, &ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triangleIndexBuffer), triangleIndexBuffer, GL_STATIC_DRAW);
 
     GLuint vao;
     glGenVertexArrays(1, &vao);
@@ -148,8 +157,7 @@ int main(){
     while(!glfwWindowShouldClose(window)){
         glClearColor(0.0, 0.4, 0.8, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(triangleBuffer) / ( 2 * sizeof(float)));
+        glDrawElements(GL_TRIANGLE_STRIP, sizeof(triangleIndexBuffer)/sizeof(unsigned int), GL_UNSIGNED_INT, nullptr);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -157,6 +165,7 @@ int main(){
     glDeleteProgram(programID);
     glDeleteShader(vertShaderID);
     glDeleteShader(fragShaderID);
+    glDeleteBuffers(1, &ibo);
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
 
